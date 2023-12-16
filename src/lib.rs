@@ -1,5 +1,7 @@
 #![no_std]
 
+pub(crate) mod fmt;
+
 pub mod sniffer;
 pub mod guesser;
 

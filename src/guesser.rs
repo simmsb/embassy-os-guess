@@ -42,6 +42,8 @@ where
 
     fn dispatch(&mut self, guess: OS) {
         if let Some(cb) = self.detected_cb.take() {
+            info!("Guessed OS: {:?}", guess);
+
             cb(guess);
         }
     }
@@ -50,6 +52,11 @@ where
         if self.detected_cb.is_none() {
             return;
         }
+
+        info!(
+            "Guessing OS with wlength: {}. Current state: (count: {}, 02: {}, 04: {}, ff: {})",
+            wlength, self.count, self.num_02, self.num_04, self.num_ff
+        );
 
         self.count += 1;
 
@@ -89,6 +96,7 @@ where
 }
 
 #[derive(Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum OS {
     Windows,
     Linux,
