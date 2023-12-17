@@ -83,6 +83,11 @@ where
             return;
         }
 
+        if self.count == 4 && self.num_ff == 0 && self.num_02 == 2 {
+            self.dispatch(OS::MacOS);
+            return;
+        }
+
         if self.count == 5 && self.last_wlength == 0xff && self.num_ff == 1 && self.num_02 == 2 {
             self.dispatch(OS::MacOS);
             return;
