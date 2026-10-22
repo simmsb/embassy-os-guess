@@ -48,6 +48,13 @@ where
         self.pipe.data_out(buf, first, last).await
     }
 
+    async fn data_out_transfer(
+        &mut self,
+        buf: &mut [u8],
+    ) -> Result<usize, embassy_usb::driver::EndpointError> {
+        self.pipe.data_out_transfer(buf).await
+    }
+
     async fn data_in(
         &mut self,
         data: &[u8],
@@ -55,6 +62,14 @@ where
         last: bool,
     ) -> Result<(), embassy_usb::driver::EndpointError> {
         self.pipe.data_in(data, first, last).await
+    }
+
+    async fn data_in_transfer(
+        &mut self,
+        data: &[u8],
+        needs_zlp: bool,
+    ) -> Result<(), embassy_usb::driver::EndpointError> {
+        self.pipe.data_in_transfer(data, needs_zlp).await
     }
 
     async fn accept(&mut self) {
@@ -86,21 +101,41 @@ where
     fn alloc_endpoint_out(
         &mut self,
         ep_type: embassy_usb::driver::EndpointType,
+        ep_addr: Option<embassy_usb::driver::EndpointAddress>,
         max_packet_size: u16,
         interval_ms: u8,
     ) -> Result<Self::EndpointOut, embassy_usb::driver::EndpointAllocError> {
         self.inner
-            .alloc_endpoint_out(ep_type, max_packet_size, interval_ms)
+            .alloc_endpoint_out(ep_type, ep_addr, max_packet_size, interval_ms)
+    }
+
+    fn alloc_endpoint_bulk_out_double_buffered(
+        &mut self,
+        ep_addr: Option<embassy_usb::driver::EndpointAddress>,
+        max_packet_size: u16,
+    ) -> Result<Self::EndpointOut, embassy_usb::driver::EndpointAllocError> {
+        self.inner
+            .alloc_endpoint_bulk_out_double_buffered(ep_addr, max_packet_size)
     }
 
     fn alloc_endpoint_in(
         &mut self,
         ep_type: embassy_usb::driver::EndpointType,
+        ep_addr: Option<embassy_usb::driver::EndpointAddress>,
         max_packet_size: u16,
         interval_ms: u8,
     ) -> Result<Self::EndpointIn, embassy_usb::driver::EndpointAllocError> {
         self.inner
-            .alloc_endpoint_in(ep_type, max_packet_size, interval_ms)
+            .alloc_endpoint_in(ep_type, ep_addr, max_packet_size, interval_ms)
+    }
+
+    fn alloc_endpoint_bulk_in_double_buffered(
+        &mut self,
+        ep_addr: Option<embassy_usb::driver::EndpointAddress>,
+        max_packet_size: u16,
+    ) -> Result<Self::EndpointIn, embassy_usb::driver::EndpointAllocError> {
+        self.inner
+            .alloc_endpoint_bulk_in_double_buffered(ep_addr, max_packet_size)
     }
 
     fn start(self, control_max_packet_size: u16) -> (Self::Bus, Self::ControlPipe) {
